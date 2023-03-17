@@ -15,6 +15,9 @@
       <div class="now-playing__details">
         <h1 class="now-playing__track" v-text="player.trackTitle"></h1>
         <h2 class="now-playing__artists" v-text="getTrackArtists"></h2>
+        <h2>Up next:</h2>
+        <h3 v-text="player.upNextTrackTitle"></h3>
+        <h4 v-text="getUpNextTrackArtists"></h4>
       </div>
     </div>
     <div v-else class="now-playing" :class="getNowPlayingClass()">
@@ -41,7 +44,9 @@ export default {
     return {
       pollPlaying: '',
       playerResponse: {},
+      upNextResponse: {},
       playerData: this.getEmptyPlayer(),
+      upNextData: this.getEmptyUpNextPlayer(),
       colourPalette: '',
       swatches: []
     }
@@ -54,6 +59,9 @@ export default {
      */
     getTrackArtists() {
       return this.player.trackArtists.join(', ')
+    },
+    getUpNextTrackArtists() {
+      return this.player.upNextTrackArtists.join(', ')
     }
   },
 
@@ -72,6 +80,7 @@ export default {
      */
     async getNowPlaying() {
       let data = {}
+      let upNextData = {}
 
       try {
         const response = await fetch(
@@ -83,10 +92,22 @@ export default {
           }
         )
 
+        const upNextResponse = await fetch(
+          `${this.endpoints.base}/${this.endpoints.queue}`,
+          {
+            headers: {
+              Authorization: `Bearer ${this.auth.accessToken}`
+            }
+          }
+        )
+
         /**
          * Fetch error.
          */
         if (!response.ok) {
+          throw new Error(`An error has occured: ${response.status}`)
+        }
+        if (!upNextResponse.ok) {
           throw new Error(`An error has occured: ${response.status}`)
         }
 
@@ -106,7 +127,9 @@ export default {
         }
 
         data = await response.json()
+        upNextData = await upNextResponse.json()
         this.playerResponse = data
+        this.upNextResponse = upNextData
       } catch (error) {
         this.handleExpiredToken()
 
@@ -158,6 +181,19 @@ export default {
     getEmptyPlayer() {
       return {
         playing: false,
+        trackAlbum: {},
+        trackArtists: [],
+        trackId: '',
+        trackTitle: ''
+      }
+    },
+
+    /**
+     * Return a formatted empty object for an idle up next player.
+     * @return {Object}
+     */
+    getEmptyUpNextPlayer() {
+      return {
         trackAlbum: {},
         trackArtists: [],
         trackId: '',
@@ -233,6 +269,21 @@ export default {
         trackAlbum: {
           title: this.playerResponse.item.album.name,
           image: this.playerResponse.item.album.images[0].url
+        }
+      }
+
+      /**
+       * Store the up next track.
+       */
+      this.upNextData = {
+        trackArtists: this.upNextResponse.queue[0].artists.map(
+          artist => artist.name
+        ),
+        trackTitle: this.upNextResponse.queue[0].name,
+        trackId: this.upNextResponse.queue[0].id,
+        trackAlbum: {
+          title: this.upNextResponse.queue[0].album.name,
+          image: this.upNextResponse.queue[0].album.images[0].url
         }
       }
     },
