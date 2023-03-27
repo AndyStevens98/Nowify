@@ -69,3 +69,18 @@
     }
   }
 }
+
+.up-next {
+
+  &__track, &__album {
+    font-weight: var(--font-weight-heading);
+    opacity: 0.5;
+    font-size: 1.17em;
+  }
+
+  &__artists {
+    opacity: 0.5;
+    font-size: 1.17em;
+  }
+
+}

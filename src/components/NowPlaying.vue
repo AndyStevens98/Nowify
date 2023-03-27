@@ -15,9 +15,12 @@
       <div class="now-playing__details">
         <h1 class="now-playing__track" v-text="player.trackTitle"></h1>
         <h2 class="now-playing__artists" v-text="getTrackArtists"></h2>
-        <h2>Up next:</h2>
-        <h3 v-text="player.upNextTrackTitle"></h3>
-        <h4 v-text="getUpNextTrackArtists"></h4>
+        <h3 style="opacity: 0.8;" v-text="player.trackAlbum.title"></h3>
+        <br /><br /><br /><br />
+        <h1 style="opacity: 0.5;">Up next:</h1>
+        <h2 class="up-next__track" v-text="player.upNextTrackTitle"></h2>
+        <h2 class="up-next__artists" v-text="getUpNextTrackArtists"></h2>
+        <h2 class="up-next__album" v-text="player.upNextTrackAlbum.title"></h2>
       </div>
     </div>
     <div v-else class="now-playing" :class="getNowPlayingClass()">
@@ -46,7 +49,6 @@ export default {
       playerResponse: {},
       upNextResponse: {},
       playerData: this.getEmptyPlayer(),
-      upNextData: this.getEmptyUpNextPlayer(),
       colourPalette: '',
       swatches: []
     }
@@ -184,20 +186,10 @@ export default {
         trackAlbum: {},
         trackArtists: [],
         trackId: '',
-        trackTitle: ''
-      }
-    },
-
-    /**
-     * Return a formatted empty object for an idle up next player.
-     * @return {Object}
-     */
-    getEmptyUpNextPlayer() {
-      return {
-        trackAlbum: {},
-        trackArtists: [],
-        trackId: '',
-        trackTitle: ''
+        trackTitle: '',
+        upNextTrackArtists: [],
+        upNextTrackTitle: '',
+        upNextTrackAlbum: []
       }
     },
 
@@ -269,6 +261,14 @@ export default {
         trackAlbum: {
           title: this.playerResponse.item.album.name,
           image: this.playerResponse.item.album.images[0].url
+        },
+        upNextTrackArtists: this.upNextResponse.queue[0].artists.map(
+          artist => artist.name
+        ),
+        upNextTrackTitle: this.upNextResponse.queue[0].name,
+        upNextTrackAlbum: {
+          title: this.upNextResponse.queue[0].album.name,
+          image: this.upNextResponse.queue[0].album.images[0].url
         }
       }
 

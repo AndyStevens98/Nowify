@@ -49,6 +49,9 @@ export default {
       player: {
         playing: false,
         trackArtists: [],
+        upNextTrackArtists: [],
+        upNextTrackTitle: '',
+        upNextAlbum: [],
         trackTitle: '',
         trackAlbum: []
       },
